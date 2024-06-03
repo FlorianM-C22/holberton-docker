@@ -1,0 +1,17 @@
+on: [push]
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build Docker image
+        run: docker build -t docker-alpine-hello/Dockerfile .
+
+      - name: Log in to GitHub Container Registry
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push Docker image to registry
+        run: docker push ghcr.io/${{ github.repository_owner }}/my-docker-image

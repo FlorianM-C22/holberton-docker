@@ -1,32 +1,17 @@
-name: Build and Push
-
+name: Construction et Déploiement de l'Image Docker
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
+    branches:
+      - main
 jobs:
-
-  build:
-
-      runs-on: ubuntu-latest
-
-      steps:
-      - name: Checkout repository
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le Répertoire
         uses: actions/checkout@v2
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.CR_PAT }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ./dockerfile
-          push: true
-          tags: ghcr.io/${{ github.repository }}/dockerfile
+      - name: Construire l'Image Docker
+        run: docker build . -t ghcr.io/guerintifenn/holbertonschool_higher_level_programming:latest
+      - name: Connexion au Registre des Conteneurs GitHub
+        run: echo "${{ secrets.CR_PAT }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+      - name: Pousser l'Image Docker
+        run: docker push ghcr.io/guerintifenn/holbertonschool_higher_level_programming:latest
